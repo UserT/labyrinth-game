@@ -1,0 +1,70 @@
+Game Setup:
+1.Power on
+2. Select Game Level (1 or 2)
+3. Warrior 1 selects Safe Room
+4. Warrior 2 selects Safe Room
+5. Computer selects a Treasure Room
+   A.located at least 3 squares away from any secret room
+6. Computer places sleeping dragon in the treasure room
+7. Computer generates the maze.
+
+Selecting a Safe Room Steps: 
+A.Press any square on the board that you want as your Safe Room.
+B. Mark it with one of the Safe Room markers and the Warrior 2 figure.
+C. Then press the NEXT key.
+D. WARRIOR 2 TUNE plays.
+E. Player 2 should then select a Safe Room and mark it with the other Room marker and figure.
+F. Player 2 presses the NEXT key.
+
+Notes:
+-If only one person is playing, press the square for your Safe Room, then press NEXT key TWICE)
+-Safe Room can change any time BEFORE the NEXT key is pressed. Once the NEXT key is pressed, the Safe Room is locked in for the game.
+-Addendum Item: Players cannot enter other players Safe Room
+
+Players Turn Loop:
+1. Warrior 1 goes first.
+2. player can move 8 squares or less per turn
+   A. Player moves to a space by pressing the tile square
+   B. Players cannot skip over squares or press only the end desination square
+      a. doing so triggers Illegal Move sound
+   C. Players can move UP, DOWN, LEFT, or RIGHT (no diagonal movement)
+   D. Players can end turn early by pressing the Next button
+   E. Players cannot move through walls
+      a. doing so triggers the wall sound
+      b. When the wall sound plays the player should move back to the previous space and place a wall marker between the game piece and the illegal space
+3. players turn ends when the max moves are reached, a wall is hit, or the NEXT button is pressed.
+   A. Warrior's tune sound playes or the dragon flying sound if the dragon is awake signifying the end of the turn
+4. After each player has taken one turn, the DRAGON takes a turn
+
+Notes:
+-In a single player game the turn is the same. After a turn ends, the player can go again.
+-In a single player game the dragon and player take turns moving, after the dragon wakes.
+-Both warriors can safely occupy the same square, as long as neither of them has the treasure.
+When two warriors temporarily land on the same square, second warrior on the square should
+wait until the first warrior moves again. Second warrior piece can then be placed on the square.
+-Addendum Item to the above note: In an attempt to add pvp to the game if a player lands on another 
+player that player takes damage (same a dragon attack health goes from 8>6>4>0) and is sent back to their safe room.
+
+Dragon Turn Loop:
+the dragon checks to see if anyone is approaching too close to the treasure.
+1. Dragon checks for players
+   A.If either player is 3 squares away or closer, in any direction, the dragon wakes otherwise end turn.
+   B. If asleep DRAGON WAKES sound playes
+2. the dragon moves one square at the end of each turn.
+   A. DRAGON moves 1 square at a time towards the NEAREST warrior after Player 2 completes their turn.
+   B. THE DRAGON CAN MOVE DIAGONALLY AND "FLY" OVER WALLS.
+   C. If either warrior gets the treasure, the dragon will immediately start after that warrior, even if the other warrior is closer.
+3. the DRAGON FLYING sound plays
+4. If a player lands on the dragon or it lands on the player it will attack and wound the player.
+   A.The WARRIOR TUNE, followed by the DRAGON ATTACKS SOUND plays
+   B. Player is returned to Safe Room
+   C. Dragon will then move towards other player on the dragons next turn.
+      If the other player is in Safe room the dragon returns to treasure room 1 room at a time.
+5. Dragon turn ends
+
+Notes:
+-Once awake the dragon never goes back to sleep - even if it returns to the treasure room.
+
+Getting the Treasure and Ending the game:
+1. When a player lands on the 
+   

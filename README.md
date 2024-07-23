@@ -34,6 +34,7 @@ Winner,
 Defeat,
 
 MISC:
+branding
 Rulebook/art,
 box art,
 Crowd Source Trailer,
