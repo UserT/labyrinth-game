@@ -1,0 +1,31 @@
+Venture name: LilBit Studio 
+Product name: Dungeon Adventure?  
+Current iteration features:
+	- Expansion port for connecting game boards for multi-level dungeons?
+	- Simple context based voice narration?
+	- mini OLED w/buttons for game setup?
+	- cost goal: ~$49.99 +Shipping? (OG selling for $70-$100)
+
+Future product Ideas:
+XL Dungeon Adventure (1-4 players)
+	-Simialr to current version but larger and with more players, game modes (quest, deathmatch, capture the flag, team deathmatch, control point, etc...), items (equipment, ranged attacks, healing items, traps?), room types, and enimies (kobolds, undead?).
+
+FTL-like ship simulator genre adaptation (1-3 player?)
+	- Different ships (board layout can select different ships by lighting the tiles in the shape of the selected ship.)
+	- Ship stats represented by colored tiles (EQ style) or mini OLED screen (touch or control buttons)
+	- Game modes:
+		Reclaim -  clear rooms of creatures repair ship functions to progress (ei: open doors, upgrade weapsons and armor)
+		Space Pirate - clear rooms of crew and ransack ship (disable shields, life suport, get loot or upgrades)
+			- Could be multi ship campain raiding different ships and increasing in difficulty each level?
+		Survive - similar to FTL - man the ship and survive encounters and gather resources to reach a destination.
+		Vs Mode - battleship like mode - put a divider over the gameboard to split into two gameboards. Players put stats into certain abilities at the start
+
+Lovecraftian/Resident Evil-like genre adaptation (1-2 players)
+	- Gameboard is a mansion layout of random large rooms (like clue)
+	- Game modes:
+		Detective: search rooms to find clues to unlock some sort of mystery?
+			OR maybe a third player (or 2nd) is actively hiding or manipulating some aspect of the game from the controls?
+		Infestation: clear mansion of creatures (find and equip armor and weapsons)
+		Horror: Explore to uncover a way out - avoid cosmic horror - conserve sanity (no battle)
+
+Depending on the success of the whole venture we could branch out into publishing other peoples games?

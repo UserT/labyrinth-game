@@ -3,9 +3,6 @@
 #include <Keypad.h>
 
 // Define button matrix inputs
-//#define DATA_PIN 2 // Connect to DS
-//#define CLOCK_PIN 3 // Connect to SHCP
-//#define LATCH_PIN 4 // Connect to STCP
 const byte ROWS = 4; // number of rows
 const byte COLS = 4; // number of columns
 char keys[ROWS][COLS] = {
@@ -13,7 +10,6 @@ char keys[ROWS][COLS] = {
 {'e','f','g','h'},
 {'i','j','k','l'},
 {'m','n','o','p'}
-
 };
 
 byte rowPins[ROWS] = {14, 12, 13, 5}; //, 12, 13, 15}; // row pinouts of the keypad R1 = D8, R2 = D7, R3 = D6, R4 = D5
@@ -39,7 +35,7 @@ public:
     bool hasWallSouth;
 
     // Constructors
-    GameTile() : name(""), hasPlayerA(false), hasPlayerB(false), hasTreasure(false), hasDragon(false), isBaseA(false), isBaseB(false), isExplored(false), hasWallEast(true), hasWallWest(true), hasWallNorth(true), hasWallSouth(true) {}
+    GameTile() : name(""), hasPlayerA(false), hasPlayerB(false), hasTreasure(false), hasDragon(false), isBaseA(false), isBaseB(false), isExplored(false), hasWallEast(false), hasWallWest(false), hasWallNorth(false), hasWallSouth(false) {}
 
     // Getter Methods
     std::string getName() const { return name; }
@@ -98,105 +94,254 @@ public:
     void setIsSafe(bool value) { isSafe = value; }
 };
 
+// Define the dimensions of the game board
+const int rows = 4;
+const int cols = 4;
+// Create Gameboard of GameTiles
+std::vector<std::vector<GameTile>> gameBoard(rows, std::vector<GameTile>(cols));
+// Create Game Entities
+Player playerA;
+Player playerB;
+Player dragon; 
+
 void createMaze (std::vector<std::vector<GameTile>>& gameBoard) {
+  //Stub in a pre-configured map - will be random eventually.
+  gameBoard[0][0].setName("a");
+  gameBoard[0][0].setHasPlayerA(true);
+  gameBoard[0][0].setIsBaseA(true);
+  gameBoard[0][0].setHasWallWest(true);
+  gameBoard[0][0].setHasWallNorth(true);
+  gameBoard[0][0].setHasWallSouth(true);
+
+  gameBoard[0][1].setName("b");
+  gameBoard[0][1].setHasWallNorth(true);
+  
+  gameBoard[0][2].setName("c");
+  gameBoard[0][2].setHasWallNorth(true);
+
+  gameBoard[0][3].setName("d");
+  gameBoard[0][3].setHasWallEast(true);
+  gameBoard[0][3].setHasWallNorth(true);
+
+  gameBoard[1][0].setName("e");
+  gameBoard[1][0].setHasPlayerB(true);
+  gameBoard[1][0].setIsBaseB(true);
+  gameBoard[1][0].setIsExplored(true);
+  gameBoard[1][0].setHasWallWest(true);
+  gameBoard[1][0].setHasWallNorth(true);
+
+  gameBoard[1][1].setName("f");
+  gameBoard[1][1].setHasWallEast(true);
+
+  gameBoard[1][2].setName("g");
+  gameBoard[1][2].setHasWallEast(true);
+  gameBoard[1][2].setHasWallWest(true);
+  gameBoard[1][2].setHasWallSouth(true);
+
+  gameBoard[1][3].setName("h");
+  gameBoard[1][3].setHasWallEast(true);
+  gameBoard[1][3].setHasWallWest(true);
+  
+  gameBoard[2][0].setName("i");
+  gameBoard[2][0].setHasWallEast(true);
+  gameBoard[2][0].setHasWallWest(true);
+  
+  gameBoard[2][1].setName("j");
+  gameBoard[2][1].setHasWallWest(true);
+  
+  gameBoard[2][2].setName("k");
+  gameBoard[2][2].setHasWallEast(true);
+  gameBoard[2][2].setHasWallNorth(true);
+  
+  gameBoard[2][3].setName("l");
+  gameBoard[2][3].setHasWallEast(true);
+  gameBoard[2][3].setHasWallWest(true);
+  
+  gameBoard[3][0].setName("m");
+  gameBoard[3][0].setHasWallWest(true);
+  gameBoard[3][0].setHasWallSouth(true);
+  
+  gameBoard[3][1].setName("n");
+  gameBoard[3][1].setHasWallEast(true);
+  gameBoard[3][1].setHasWallSouth(true);
+
+  gameBoard[3][2].setName("o");
+  gameBoard[3][2].setHasWallWest(true);
+  gameBoard[3][2].setHasWallSouth(true);
+
+  gameBoard[3][3].setName("p");
+  gameBoard[3][3].setHasTreasure(true);
+  gameBoard[3][3].setHasDragon(true);
+  gameBoard[3][3].setHasWallEast(true);
+  gameBoard[3][3].setHasWallSouth(true);
+
+  //Print Game Board
+  Serial.print("\n Game Board");
+  for (int i = 0; i < gameBoard.size(); i++)
+  {
+      Serial.print('\n');
+    for (int j = 0; j < gameBoard[i].size(); j++)
+    {
+      if (!gameBoard[i][j].getHasWallEast() & gameBoard[i][j].getHasWallWest() & gameBoard[i][j].getHasWallNorth() & gameBoard[i][j].getHasWallSouth()){ Serial.print("[¯_");
+      }else if (!gameBoard[i][j].getHasWallEast() & !gameBoard[i][j].getHasWallWest() & gameBoard[i][j].getHasWallNorth() & !gameBoard[i][j].getHasWallSouth()){ Serial.print("¯¯¯");
+      }else if (!gameBoard[i][j].getHasWallEast() & gameBoard[i][j].getHasWallWest() & gameBoard[i][j].getHasWallNorth() & !gameBoard[i][j].getHasWallSouth()){ Serial.print("[¯¯");
+      }else if (gameBoard[i][j].getHasWallEast() & !gameBoard[i][j].getHasWallWest() & gameBoard[i][j].getHasWallNorth() & !gameBoard[i][j].getHasWallSouth()){ Serial.print("¯¯]");
+      }else if (gameBoard[i][j].getHasWallEast() & !gameBoard[i][j].getHasWallWest() & !gameBoard[i][j].getHasWallNorth() & !gameBoard[i][j].getHasWallSouth()){ Serial.print("  ]");
+      }else if (!gameBoard[i][j].getHasWallEast() & gameBoard[i][j].getHasWallWest() & !gameBoard[i][j].getHasWallNorth() & !gameBoard[i][j].getHasWallSouth()){ Serial.print("[  ");
+      }else if (gameBoard[i][j].getHasWallEast() & gameBoard[i][j].getHasWallWest() & !gameBoard[i][j].getHasWallNorth() & gameBoard[i][j].getHasWallSouth()){ Serial.print("[_]");
+      }else if (gameBoard[i][j].getHasWallEast() & gameBoard[i][j].getHasWallWest() & !gameBoard[i][j].getHasWallNorth() & !gameBoard[i][j].getHasWallSouth()){ Serial.print("[ ]");
+      }else if (gameBoard[i][j].getHasWallEast() & !gameBoard[i][j].getHasWallWest() & !gameBoard[i][j].getHasWallNorth() & gameBoard[i][j].getHasWallSouth()){ Serial.print("__]");
+      }else if (!gameBoard[i][j].getHasWallEast() & gameBoard[i][j].getHasWallWest() & !gameBoard[i][j].getHasWallNorth() & gameBoard[i][j].getHasWallSouth()){ Serial.print("[__");
+      }else {Serial.print("   ");}
+    }
+  } Serial.print('\n'); 
+}
+
+void playSound (char sound){
+  switch (sound){
+    case 'n': //Next
+    break;
+    case 'w': //Wall
+      tone(SpeakerPin, 440, 100);
+      delay(100);
+      noTone(SpeakerPin);
+      tone(SpeakerPin, 440, 100);
+      delay(100);
+      noTone(SpeakerPin);
+      tone(SpeakerPin, 440, 100);
+      delay(100);
+      noTone(SpeakerPin);
+      tone(SpeakerPin, 440, 100);
+    break;
+    case 't': //Treasure
+    break;
+    case 'i': //Illegal Move
+      tone(SpeakerPin, 440, 100);
+      delay(100);
+      noTone(SpeakerPin);
+      tone(SpeakerPin, 523.3, 500);  
+      break;
+    case 'm': //Warrior Moves
+      tone(SpeakerPin, 440, 100);
+    break;
+    case '1': //Warrior 1
+    break;
+    case '2': //Warrior 2
+    break;
+    case 'd': //Dragon Wakes
+    break;
+    case 'f': //Dragon Flying
+    break;
+    case 'a': //Dragon Attacks
+    break;
+    case 'v': //Winner/victory
+    break;
+    case 'g': //Game Over/Defeat
+    break;
+  }
 }
 
 void setup() {
-  //Setup Button Matrix  
-  //pinMode(DATA_PIN, OUTPUT);
-  //pinMode(CLOCK_PIN, OUTPUT);
-  //pinMode(LATCH_PIN, OUTPUT);
-
-  // Define the dimensions of the game board
-  int rows = 4;
-  int cols = 4;
-
-  // Create Gameboard of GameTiles
-  std::vector<std::vector<GameTile>> gameBoard(rows, std::vector<GameTile>(cols));
-
-  // Create Game Entities
-  Player playerA;
-  playerA.setName("Player A");
-  playerA.setHealth(8);
-  playerA.setCurrentTile('1');
-  playerA.setHasTreasure(false);
-  playerA.setIsSafe(true);
-
-  Player playerB;
-  playerB.setName("Player B");
-  playerB.setHealth(8);
-  playerB.setCurrentTile('5');
-  playerB.setHasTreasure(false);
-  playerB.setIsSafe(true);
+  Serial.begin(921600);
 
   createMaze(gameBoard);
-
-  Player dragon;
+  
+  // Stub in Game Entities
+  playerA.setName("Player A");
+  playerA.setHealth(8);
+  playerA.setHasTreasure(false);
+  playerA.setIsSafe(true);
+  playerB.setName("Player B");
+  playerB.setHealth(8);
+  playerB.setHasTreasure(false);
+  playerB.setIsSafe(true);
   dragon.setName("Dragon");
   dragon.setHealth(1);
-  dragon.setCurrentTile('f');
   dragon.setHasTreasure(false);
   dragon.setIsSafe(true);
-
-  Serial.begin(921600);
+  playerA.setCurrentTile('a');
+  playerB.setCurrentTile('e');
+  dragon.setCurrentTile('p'); 
 }
 
+GameTile findGameTileByName(const std::vector<std::vector<GameTile>>& gameTiles, const std::string& targetName) {
+    for (const auto& row : gameTiles) {
+        for (const auto& tile : row) {
+            if (tile.name == targetName) {
+                return tile; // Return the found GameTile
+            }
+        }
+    }
+    // Handle case where no matching GameTile is found
+    GameTile defaultTile{"Not Found"};
+    return defaultTile;
+}
+
+bool moveIsValid (std:char& current, std:char& previous){
+  //Movetable
+}
 
 void loop() {
 
     // Sampe Code to play a sound - replace this eventually for mp3 or wav with ESP8266Audio Library
-    char key = keypad.getKey(); 
+    char key = keypad.getKey();
+
+    //Player 1 Turn
+    char previousTile = playerA.getCurrentTile();
+    char currentTile = playerA.getCurrentTile();
   if (key != NO_KEY) {
-    Serial.println(key);
+    Serial.println(key);    
     switch (key) {
       case 'a':
-        tone(SpeakerPin, 440, 500);
+        if (gameBoard[0][0].hasPlayerA){playSound('i');}        
         break;
       case 'b':
-        tone(SpeakerPin, 493.9, 500);
+        if (gameBoard[0][1].hasPlayerA){tone(SpeakerPin, 440, 500);} else {tone(SpeakerPin, 493.9, 100);}
         break;
       case 'c':
-        tone(SpeakerPin, 523.3, 500);
+        tone(SpeakerPin, 523.3, 100);
         break;
       case 'd':
-        tone(SpeakerPin, 587.4, 500);
+        tone(SpeakerPin, 587.4, 100);
         break;
       case 'e':
-        tone(SpeakerPin, 659.4, 500);
+        tone(SpeakerPin, 659.4, 100);
         break;
       case 'f':
-        tone(SpeakerPin, 698.7, 500);
+        tone(SpeakerPin, 698.7, 100);
         break;
       case 'g':
-        tone(SpeakerPin, 784.3, 500);
+        tone(SpeakerPin, 784.3, 100);
         break;
       case 'h':
-        tone(SpeakerPin, 164.8, 500);
+        tone(SpeakerPin, 164.8, 100);
         break;
         case 'i':
-        tone(SpeakerPin, 174.6, 500);
+        tone(SpeakerPin, 174.6, 100);
         break;
         case 'j':
-        tone(SpeakerPin, 196, 500);
+        tone(SpeakerPin, 196, 100);
         break;
         case 'k':
-        tone(SpeakerPin, 220, 500);
+        tone(SpeakerPin, 220, 100);
         break;
         case 'l':
-        tone(SpeakerPin, 247, 500);
+        tone(SpeakerPin, 247, 100);
         break;
         case 'm':
-        tone(SpeakerPin, 261.6, 500);
+        tone(SpeakerPin, 261.6, 100);
         break;
         case 'n':
-        tone(SpeakerPin, 293.7, 500);
+        tone(SpeakerPin, 293.7, 100);
         break;
         case 'o':
-        tone(SpeakerPin, 329.6, 500);
+        tone(SpeakerPin, 329.6, 100);
         break;
         case 'p':
-        tone(SpeakerPin, 392, 500);
+        tone(SpeakerPin, 392, 100);
         break;
     }
   }
+  //Player 2 Turn
+  //Dragon Turn
 }

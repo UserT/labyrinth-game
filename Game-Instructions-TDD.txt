@@ -19,7 +19,7 @@ F. Player 2 presses the NEXT key.
 Notes:
 -If only one person is playing, press the square for your Safe Room, then press NEXT key TWICE)
 -Safe Room can change any time BEFORE the NEXT key is pressed. Once the NEXT key is pressed, the Safe Room is locked in for the game.
--Addendum Item: Players cannot enter other players Safe Room
+-The dragon cannot find you in YOUR secret room — you are safe. You are NOT safe in your opponent's secret room.
 
 Players Turn Loop:
 1. Warrior 1 goes first.
@@ -66,5 +66,49 @@ Notes:
 -Once awake the dragon never goes back to sleep - even if it returns to the treasure room.
 
 Getting the Treasure and Ending the game:
-1. When a player lands on the 
-   
+1. When a player lands on the Treasure room the TREASURE Sound will play
+   A. If the player lands on the treasure room and the dragon is in the treasure room they are treated like a normal attack
+2. Player movement ends until the next turn
+3. Player movement is lowered to 4 (treasure is heavy)
+   A.movement is 4 even if player was injured
+4. IF player is attacked by Dragon they are dead and out of the game
+   A. Treasure returns to the treasure room
+   B. remaining player must still get the treasure to win
+5. Game ends when a player reaches the safe room with the treasure
+
+Notes:
+
+
+PVP Behavior:
+1. Player strength - reduced by 1 each step and resets after it hits 0.
+2. Player lands on a tile occupied by the other player to start PVP
+   A. players now occupy the same game tile
+   B. the game does a strength check - highest strength wins
+   C. if attack is sucessful then Players sound plays if they are not then the other players sound plays
+   D. if the defeated player has the treasure then it is transfered to the winner and the treasure sound plays after the player sound.
+   D. Loser takes damage 
+3. If dragon attacks a tile occupied by both players then the weakest takes damage and is returned to safe room
+4. If during the next turn a player wishes to attack again, then they can move off the occupied spacea and back on to attack a second time.
+
+Notes:
+- Attacking Warrior with treasure has NOT used his maximum of 4 moves.
+   -Whether he wins or loses, the warrior with treasure may continue moving,
+       up to his maximum number of moves. If he wins, that maximum stays at 4 moves.
+   -If he loses, that maximum returns to whatever it was before he took the treasure (6 or 8 moves).
+   -Warrior with treasure HAS USED his maximum of 4 moves.
+      If he wins, he must stop. His turn is over. If he loses, he may continue moving,
+      since his maximum returns to whatever it was before he took the treasure (6 or 8 moves).
+- Attacking Warrior (no treasure) has moved LESS THAN 4 squares.
+   -Whether he wins or loses, he may continue moving, up to his maximum number of moves. 
+      If he wins, that maximum drops to 4 moves. If he loses,
+      that maximum remains whatever it was before combat (6 or 8).
+   -Other warrior has moved AT LEAST 4 SQUARES but LESS than his maximum.
+   -If he wins, he must stop. The treasure reduces his maximum to 4 moves. 
+      If he loses, he may continue moving, up to his maximum (6 or 8 moves).
+   -Other warrior HAS USED HIS MAXIMUM number of moves.
+       Whether he wins or loses, he must stop. His turn is over.
+
+MISC Notes:
+-Original game featuer that is fucking dumb: Magic doors - we ain't doing that.
+-Addendum Item: Using LED lights, the dragon's location once know, will stay known as a light can show it's movement once it's attacked someone.
+-Treasure Room is always at least 3 squares away from any Secret Room and always has at least 2 open paths leading to it
