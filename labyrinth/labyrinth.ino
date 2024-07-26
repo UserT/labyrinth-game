@@ -264,23 +264,6 @@ void setup() {
   dragon.setCurrentTile('p'); 
 }
 
-GameTile findGameTileByName(const std::vector<std::vector<GameTile>>& gameTiles, const std::string& targetName) {
-    for (const auto& row : gameTiles) {
-        for (const auto& tile : row) {
-            if (tile.name == targetName) {
-                return tile; // Return the found GameTile
-            }
-        }
-    }
-    // Handle case where no matching GameTile is found
-    GameTile defaultTile{"Not Found"};
-    return defaultTile;
-}
-
-bool moveIsValid (std:char& current, std:char& previous){
-  //Movetable
-}
-
 void loop() {
 
     // Sampe Code to play a sound - replace this eventually for mp3 or wav with ESP8266Audio Library
