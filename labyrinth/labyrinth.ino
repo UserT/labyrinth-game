@@ -264,66 +264,72 @@ void setup() {
   dragon.setCurrentTile('p'); 
 }
 
+GameTile& getMove (char move){
+  GameTile moveTile;
+  switch (move) {
+      case 'a':
+      return gameBoard[0][0];
+      break;
+      case 'b':
+      return gameBoard[0][1];
+      break;
+      case 'c':
+      return gameBoard[0][2];
+      break;
+      case 'd':
+      return gameBoard[0][3];
+      break;
+      case 'e':
+      return gameBoard[1][0];
+      break;
+      case 'f':
+      return gameBoard[1][1];
+      break;
+      case 'g':
+      return gameBoard[1][2];
+      break;
+      case 'h':
+      return gameBoard[1][3];
+      break;
+      case 'i':
+      return gameBoard[2][0];
+      break;
+      case 'j':
+      return gameBoard[2][1];
+      break;
+      case 'k':
+      return gameBoard[2][2];
+      break;
+      case 'l':
+      return gameBoard[2][3];
+      break;
+      case 'm':
+      return gameBoard[3][0];
+      break;
+      case 'n':
+      return gameBoard[3][1];
+      break;
+      case 'o':
+      return gameBoard[3][2];
+      break;
+      case 'p':
+      return gameBoard[3][3];
+      break;
+    }
+    return moveTile;
+}
+
 void loop() {
 
     // Sampe Code to play a sound - replace this eventually for mp3 or wav with ESP8266Audio Library
     char key = keypad.getKey();
-
     //Player 1 Turn
-    char previousTile = playerA.getCurrentTile();
-    char currentTile = playerA.getCurrentTile();
+    GameTile previousTileData;
+    GameTile currentTileData = getMove(playerA.getCurrentTile());
   if (key != NO_KEY) {
-    Serial.println(key);    
-    switch (key) {
-      case 'a':
-        if (gameBoard[0][0].hasPlayerA){playSound('i');}        
-        break;
-      case 'b':
-        if (gameBoard[0][1].hasPlayerA){tone(SpeakerPin, 440, 500);} else {tone(SpeakerPin, 493.9, 100);}
-        break;
-      case 'c':
-        tone(SpeakerPin, 523.3, 100);
-        break;
-      case 'd':
-        tone(SpeakerPin, 587.4, 100);
-        break;
-      case 'e':
-        tone(SpeakerPin, 659.4, 100);
-        break;
-      case 'f':
-        tone(SpeakerPin, 698.7, 100);
-        break;
-      case 'g':
-        tone(SpeakerPin, 784.3, 100);
-        break;
-      case 'h':
-        tone(SpeakerPin, 164.8, 100);
-        break;
-        case 'i':
-        tone(SpeakerPin, 174.6, 100);
-        break;
-        case 'j':
-        tone(SpeakerPin, 196, 100);
-        break;
-        case 'k':
-        tone(SpeakerPin, 220, 100);
-        break;
-        case 'l':
-        tone(SpeakerPin, 247, 100);
-        break;
-        case 'm':
-        tone(SpeakerPin, 261.6, 100);
-        break;
-        case 'n':
-        tone(SpeakerPin, 293.7, 100);
-        break;
-        case 'o':
-        tone(SpeakerPin, 329.6, 100);
-        break;
-        case 'p':
-        tone(SpeakerPin, 392, 100);
-        break;
-    }
+    Serial.println(key);
+    previousTileData  = currentTileData;
+    currentTileData = getMove(key);
   }
   //Player 2 Turn
   //Dragon Turn
