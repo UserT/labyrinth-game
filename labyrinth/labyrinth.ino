@@ -28,6 +28,7 @@ public:
     bool hasDragon;
     bool isBaseA;
     bool isBaseB;
+    bool isDen;
     bool isExplored;
     bool hasWallEast;
     bool hasWallWest;
@@ -35,7 +36,7 @@ public:
     bool hasWallSouth;
 
     // Constructors
-    GameTile() : name(' '), hasPlayerA(false), hasPlayerB(false), hasTreasure(false), hasDragon(false), isBaseA(false), isBaseB(false), isExplored(false), hasWallEast(false), hasWallWest(false), hasWallNorth(false), hasWallSouth(false) {}
+    GameTile() : name(' '), hasPlayerA(false), hasPlayerB(false), hasTreasure(false), hasDragon(false), isBaseA(false), isBaseB(false), isDen(false), isExplored(false), hasWallEast(false), hasWallWest(false), hasWallNorth(false), hasWallSouth(false) {}
 
     // Getter Methods
     char getName() const { return name; }
@@ -45,6 +46,7 @@ public:
     bool getHasDragon() const { return hasDragon; }
     bool getIsBaseA() const { return isBaseA; }
     bool getIsBaseB() const { return isBaseB; }
+    bool getIsDen() const { return isDen; }
     bool getIsExplored() const { return isExplored; }
     bool getHasWallEast() const { return hasWallEast; }
     bool getHasWallWest() const { return hasWallWest; }
@@ -59,6 +61,7 @@ public:
     void setHasDragon(bool newStatus) { hasDragon = newStatus; }
     void setIsBaseA(bool newStatus) { isBaseA = newStatus; }
     void setIsBaseB(bool newStatus) { isBaseB = newStatus; }
+    void setIsDen(bool newStatus) { isDen = newStatus; }
     void setIsExplored(bool newStatus) { isExplored = newStatus; }
     void setHasWallEast(bool newStatus) { hasWallEast = newStatus; }
     void setHasWallWest(bool newStatus) { hasWallWest = newStatus; }
@@ -172,6 +175,7 @@ void createMaze (std::vector<std::vector<GameTile>>& gameBoard) {
   gameBoard[3][3].setName('p');
   gameBoard[3][3].setHasTreasure(true);
   gameBoard[3][3].setHasDragon(true);
+  gameBoard[3][3].setIsDen(true);
   gameBoard[3][3].setHasWallEast(true);
   gameBoard[3][3].setHasWallSouth(true);
 
@@ -214,6 +218,16 @@ void playSound (char sound){
       tone(SpeakerPin, 523.3, 150);
     break;
     case 't': //Treasure
+      tone(SpeakerPin, 130.8, 100);
+      delay(150);
+      noTone(SpeakerPin);
+      tone(SpeakerPin, 146.8, 100);
+      delay(150);
+      noTone(SpeakerPin);
+      tone(SpeakerPin, 164.8, 100);
+      delay(150);
+      noTone(SpeakerPin);
+      tone(SpeakerPin, 174.6, 100);
     break;
     case 'i': //Illegal Move
       tone(SpeakerPin, 440, 100);
@@ -235,6 +249,32 @@ void playSound (char sound){
     case 'a': //Dragon Attacks
     break;
     case 'v': //Winner/victory
+      tone(SpeakerPin, 164.8, 100);
+      delay(150);
+      noTone(SpeakerPin);
+      tone(SpeakerPin, 164.8, 100);
+      delay(150);
+      noTone(SpeakerPin);
+      tone(SpeakerPin, 164.8, 100);
+      delay(150);
+      noTone(SpeakerPin);
+      tone(SpeakerPin, 164.8, 400);
+      delay(550);
+      tone(SpeakerPin, 130.8, 100);
+      delay(150);
+      noTone(SpeakerPin);
+      tone(SpeakerPin, 146.8, 100);
+      delay(150);
+      noTone(SpeakerPin);
+      tone(SpeakerPin, 164.8, 100);
+      delay(150);
+      noTone(SpeakerPin);
+      tone(SpeakerPin, 146.8, 100);
+      delay(150);
+      noTone(SpeakerPin);
+      tone(SpeakerPin, 164.8, 500);
+      delay(550);
+      noTone(SpeakerPin);
     break;
     case 'g': //Game Over/Defeat
     break;
@@ -338,8 +378,6 @@ void setup() {
 
 void loop() {
   //Player Turn
-  Player& currentPlayer = playerA;
-  int playerMoves = currentPlayer.getHealth();
   GameTile previousTileData;
   GameTile currentTileData = getMove(playerA.getCurrentTile());
     char key = keypad.getKey();
@@ -355,14 +393,23 @@ void loop() {
       Serial.print(previousTileData.name);
       Serial.print("\n");
       if (moveIsValid(previousTileData, currentTileData)) {
-        playSound('m');
         Serial.println("Legal Move");
-        currentPlayer.setCurrentTile(currentTileData.name);
-        playerMoves--;
+        playerA.setCurrentTile(currentTileData.name);
+        //Player gets Treasure
+        if(currentTileData.hasTreasure) {
+          playSound('t');
+          currentTileData.setHasTreasure(false);
+          playerA.setHasTreasure(true);
+        } else {
+          playSound('m');
+        }
+        //Player Enters Safe Room
+        if(currentTileData.isBaseA) { // and player is playerA
+          if(playerA.hasTreasure){playSound('v');}
+        }
       } else {
         playSound('w');
         Serial.println("Ilegal Move");
-        playerMoves = 0;
       }
     }
     delay(100);  
