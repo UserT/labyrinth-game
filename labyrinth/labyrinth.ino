@@ -1,6 +1,7 @@
 #include <iostream>
 #include <string>
 #include <Keypad.h>
+#include <ESP8266TrueRandom.h>
 
 // Define button matrix inputs
 const byte ROWS = 4; // number of rows
@@ -36,7 +37,7 @@ public:
     bool hasWallSouth;
 
     // Constructors
-    GameTile() : name(' '), hasPlayerA(false), hasPlayerB(false), hasTreasure(false), hasDragon(false), isBaseA(false), isBaseB(false), isDen(false), isExplored(false), hasWallEast(false), hasWallWest(false), hasWallNorth(false), hasWallSouth(false) {}
+    GameTile() : name(' '), hasPlayerA(false), hasPlayerB(false), hasTreasure(false), hasDragon(false), isBaseA(false), isBaseB(false), isDen(false), isExplored(false), hasWallEast(true), hasWallWest(true), hasWallNorth(true), hasWallSouth(true) {}
 
     // Getter Methods
     char getName() const { return name; }
@@ -105,79 +106,178 @@ std::vector<std::vector<GameTile>> gameBoard(rows, std::vector<GameTile>(cols));
 // Create Game Entities
 Player playerA;
 Player playerB;
-Player dragon; 
+Player dragon;
+
+bool randomBool() {
+   return rand() > (RAND_MAX / 2);
+}
+
+char randomDirection (){
+  int numDirection = ESP8266TrueRandom.random() % 4; // Assuming 0=West, 1=East, 2=North, 3=South
+  Serial.print("Random Direction is: "); 
+  Serial.println(numDirection); 
+  char direction;
+  switch (static_cast<char>(numDirection)){
+    case 0:
+    direction = 'w';
+    break;
+    case 1:
+    direction = 'e';
+    break;
+    case 2:
+    direction = 'n';
+    break;
+    case 3:
+    direction = 's';
+    break;
+  }
+  return direction;
+}
+
+void dfs(std::vector<std::vector<GameTile>>& gameBoard, int x, int y, char prevDirection) {
+    //stack<std::pair<int, int>> tracking;
+    //tracking.push({x,y});
+    if (x >= 0 && x < 4 && y >= 0 && y < 4 && !gameBoard[x][y].getIsExplored()) {
+        gameBoard[x][y].setIsExplored(true);
+
+        // Randomly choose a direction to move next
+        char nextDirection = randomDirection();   
+        Serial.println(nextDirection);     
+
+        // Remove the wall in the opposite direction of the previous move
+        switch (prevDirection) {
+            case 'w':
+                gameBoard[x][y].setHasWallEast(false);
+                break;
+            case 'e':
+                gameBoard[x][y].setHasWallWest(false);
+                break;
+            case 'n':
+                gameBoard[x][y].setHasWallSouth(false);
+                break;
+            case 's':
+                gameBoard[x][y].setHasWallNorth(false);
+                break;
+        }
+
+        // Move to the next tile in the chosen direction
+        int dx, dy;
+        switch (nextDirection) {
+            case 'w':
+                dx = -1;
+                dy = 0;
+                break;
+            case 'e':
+                dx = 1;
+                dy = 0;
+                break;
+            case 'n':
+                dx = 0;
+                dy = -1;
+                break;
+            case 's':
+                dx = 0;
+                dy = 1;
+                break;
+        }
+        dfs(gameBoard, x + dx, y + dy, nextDirection);
+    }
+}
 
 void createMaze (std::vector<std::vector<GameTile>>& gameBoard) {
+  //dfs(gameBoard, 0, 0, 'e'); // Start DFS from the top-left corner moving right
+  //create gameboard outline and name each tile
+  //char name = 'a';
+  //for (int i = 0; i < gameBoard.size(); i++){
+  //  for (int j = 0; j < gameBoard[i].size(); j++){
+  //    //set name
+  //    gameBoard[i][j].setName(name);
+  //    name++;
+  //    //is top of gameboard
+  //    if (i == 0) {
+  //      gameBoard[i][j].setHasWallNorth(true);
+  //    }
+  //    //is bottom of gameboard
+  //    if (i == (rows-1) ){
+  //      gameBoard[i][j].setHasWallSouth(true);
+  //    }
+  //    //is left edge of gameboard
+  //    if (j == 0) {
+  //      gameBoard[i][j].setHasWallWest(true);
+  //    }
+  //    //is right edge of gameboard
+  //    if (j == (cols-1) ){
+  //      gameBoard[i][j].setHasWallEast(true);
+  //    }
+  //  }
+  //}
+
   //Stub in a pre-configured map - will be random eventually.
   gameBoard[0][0].setName('a');
-  gameBoard[0][0].setHasPlayerA(true);
-  gameBoard[0][0].setIsBaseA(true);
-  gameBoard[0][0].setHasWallWest(true);
-  gameBoard[0][0].setHasWallNorth(true);
-  gameBoard[0][0].setHasWallSouth(true);
+  gameBoard[0][0].setHasWallEast(false);
 
   gameBoard[0][1].setName('b');
-  gameBoard[0][1].setHasWallNorth(true);
-  
+  gameBoard[0][1].setHasWallEast(false);
+  gameBoard[0][1].setHasWallWest(false);
+  gameBoard[0][1].setHasWallSouth(false);
+
   gameBoard[0][2].setName('c');
-  gameBoard[0][2].setHasWallNorth(true);
+  gameBoard[0][2].setHasWallEast(false);
+  gameBoard[0][2].setHasWallWest(false);
+  gameBoard[0][2].setHasWallSouth(false);
 
   gameBoard[0][3].setName('d');
-  gameBoard[0][3].setHasWallEast(true);
-  gameBoard[0][3].setHasWallNorth(true);
+  gameBoard[0][3].setHasWallWest(false);
+  gameBoard[0][3].setHasWallSouth(false);
 
   gameBoard[1][0].setName('e');
-  gameBoard[1][0].setHasPlayerB(true);
-  gameBoard[1][0].setIsBaseB(true);
-  gameBoard[1][0].setIsExplored(true);
-  gameBoard[1][0].setHasWallWest(true);
-  gameBoard[1][0].setHasWallNorth(true);
+  gameBoard[1][0].setHasWallEast(false);
+  gameBoard[1][0].setHasWallSouth(false);
 
   gameBoard[1][1].setName('f');
-  gameBoard[1][1].setHasWallEast(true);
+  gameBoard[1][1].setHasWallWest(false);
+  gameBoard[1][1].setHasWallNorth(false);
+  gameBoard[1][1].setHasWallSouth(false);
 
   gameBoard[1][2].setName('g');
-  gameBoard[1][2].setHasWallEast(true);
-  gameBoard[1][2].setHasWallWest(true);
-  gameBoard[1][2].setHasWallSouth(true);
+  gameBoard[1][2].setHasWallNorth(false);
 
   gameBoard[1][3].setName('h');
-  gameBoard[1][3].setHasWallEast(true);
-  gameBoard[1][3].setHasWallWest(true);
-  
+  gameBoard[1][3].setHasWallNorth(false);
+  gameBoard[1][3].setHasWallSouth(false);
+
   gameBoard[2][0].setName('i');
-  gameBoard[2][0].setHasWallEast(true);
-  gameBoard[2][0].setHasWallWest(true);
-  
+  gameBoard[2][0].setHasWallNorth(false);
+  gameBoard[2][0].setHasWallSouth(false);
+
   gameBoard[2][1].setName('j');
-  gameBoard[2][1].setHasWallWest(true);
-  
+  gameBoard[2][1].setHasWallEast(false);
+  gameBoard[2][1].setHasWallNorth(false);
+  gameBoard[2][1].setHasWallSouth(false);
+
   gameBoard[2][2].setName('k');
-  gameBoard[2][2].setHasWallEast(true);
-  gameBoard[2][2].setHasWallNorth(true);
-  
+  gameBoard[2][2].setHasWallWest(false);
+  gameBoard[2][2].setHasWallSouth(false);
+
   gameBoard[2][3].setName('l');
-  gameBoard[2][3].setHasWallEast(true);
-  gameBoard[2][3].setHasWallWest(true);
-  
+  gameBoard[2][3].setHasWallNorth(false);
+  gameBoard[2][3].setHasWallSouth(false);
+
   gameBoard[3][0].setName('m');
-  gameBoard[3][0].setHasWallWest(true);
-  gameBoard[3][0].setHasWallSouth(true);
-  
+  gameBoard[3][0].setHasWallEast(false);
+  gameBoard[3][0].setHasWallNorth(false);
+
   gameBoard[3][1].setName('n');
-  gameBoard[3][1].setHasWallEast(true);
-  gameBoard[3][1].setHasWallSouth(true);
+  gameBoard[3][1].setHasWallWest(false);
+  gameBoard[3][1].setHasWallNorth(false);
 
   gameBoard[3][2].setName('o');
-  gameBoard[3][2].setHasWallWest(true);
-  gameBoard[3][2].setHasWallSouth(true);
+  gameBoard[3][2].setHasWallEast(false);
+  gameBoard[3][2].setHasWallNorth(false);
 
   gameBoard[3][3].setName('p');
-  gameBoard[3][3].setHasTreasure(true);
-  gameBoard[3][3].setHasDragon(true);
-  gameBoard[3][3].setIsDen(true);
-  gameBoard[3][3].setHasWallEast(true);
-  gameBoard[3][3].setHasWallSouth(true);
+  gameBoard[3][3].setHasWallWest(false);
+  gameBoard[3][3].setHasWallNorth(false);
 
   //Print Game Board
   Serial.print("\n Game Board");
@@ -194,8 +294,10 @@ void createMaze (std::vector<std::vector<GameTile>>& gameBoard) {
       }else if (!gameBoard[i][j].getHasWallEast() & gameBoard[i][j].getHasWallWest() & !gameBoard[i][j].getHasWallNorth() & !gameBoard[i][j].getHasWallSouth()){ Serial.print("[  ");
       }else if (gameBoard[i][j].getHasWallEast() & gameBoard[i][j].getHasWallWest() & !gameBoard[i][j].getHasWallNorth() & gameBoard[i][j].getHasWallSouth()){ Serial.print("[_]");
       }else if (gameBoard[i][j].getHasWallEast() & gameBoard[i][j].getHasWallWest() & !gameBoard[i][j].getHasWallNorth() & !gameBoard[i][j].getHasWallSouth()){ Serial.print("[ ]");
+      }else if (!gameBoard[i][j].getHasWallEast() & !gameBoard[i][j].getHasWallWest() & !gameBoard[i][j].getHasWallNorth() & gameBoard[i][j].getHasWallSouth()){ Serial.print("___");
       }else if (gameBoard[i][j].getHasWallEast() & !gameBoard[i][j].getHasWallWest() & !gameBoard[i][j].getHasWallNorth() & gameBoard[i][j].getHasWallSouth()){ Serial.print("__]");
       }else if (!gameBoard[i][j].getHasWallEast() & gameBoard[i][j].getHasWallWest() & !gameBoard[i][j].getHasWallNorth() & gameBoard[i][j].getHasWallSouth()){ Serial.print("[__");
+      }else if (gameBoard[i][j].getHasWallEast() & gameBoard[i][j].getHasWallWest() & gameBoard[i][j].getHasWallNorth() & gameBoard[i][j].getHasWallSouth()){ Serial.print("[■]");
       }else {Serial.print("   ");}
     }
   } Serial.print('\n'); 
@@ -204,6 +306,10 @@ void createMaze (std::vector<std::vector<GameTile>>& gameBoard) {
 void playSound (char sound){
   switch (sound){
     case 'n': //Next
+      tone(SpeakerPin, 440, 100);
+      delay(100);
+      noTone(SpeakerPin);
+      tone(SpeakerPin, 220, 100);  
     break;
     case 'w': //Wall
       tone(SpeakerPin, 523.3, 100);
@@ -239,8 +345,16 @@ void playSound (char sound){
       tone(SpeakerPin, 440, 100);
     break;
     case '1': //Warrior 1
+      tone(SpeakerPin, 110, 100);
+      delay(150);
+      noTone(SpeakerPin);
+      tone(SpeakerPin, 164.8, 600);
     break;
     case '2': //Warrior 2
+      tone(SpeakerPin, 164.8, 100);
+      delay(150);
+      noTone(SpeakerPin);
+      tone(SpeakerPin, 110, 600);
     break;
     case 'd': //Dragon Wakes
     break;
@@ -260,10 +374,10 @@ void playSound (char sound){
       noTone(SpeakerPin);
       tone(SpeakerPin, 164.8, 400);
       delay(550);
-      tone(SpeakerPin, 130.8, 100);
+      tone(SpeakerPin, 110, 100);
       delay(150);
       noTone(SpeakerPin);
-      tone(SpeakerPin, 146.8, 100);
+      tone(SpeakerPin, 130.8, 100);
       delay(150);
       noTone(SpeakerPin);
       tone(SpeakerPin, 164.8, 100);
@@ -353,64 +467,134 @@ bool moveIsValid (GameTile& previousTile, GameTile& currentTile){
   else {return false;} 
 }
 
-void setup() {
-  Serial.begin(921600);
+//Create Game state data
+int remainingMoves;
+int currentPlayerId = 1;
+Player *currentPlayer;
+void setCurrentPlayer(int player){
+  if (player == 1){currentPlayer = &playerA;}
+  else if (player == 2){currentPlayer = &playerB;}
+  else {currentPlayer = &dragon;}
+}
 
+void setup() {
+  //Initialize game
+  Serial.begin(921600);
   createMaze(gameBoard);
-  
-  // Stub in Game Entities
+  char setupkey = keypad.getKey();
+
+  //Setup Player A
+  playSound('1');
+  while (setupkey == NO_KEY) {
+    Serial.println("Waiting for Player 1...");       
+    setupkey = keypad.getKey();
+  }
+  getMove(setupkey).setHasPlayerA(true);
+  getMove(setupkey).setIsBaseA(true);
   playerA.setName("Player A");
   playerA.setHealth(4);
-  playerA.setHasTreasure(false);
   playerA.setIsSafe(true);
+  playerA.setCurrentTile(setupkey);
+  playSound('m');
+  setupkey = NO_KEY;
+  delay(1000);
+
+  //Setup Player B
+  playSound('2');
+   while (setupkey == NO_KEY) {
+    Serial.println("Waiting for Player 2...");
+    setupkey = keypad.getKey();
+    if (setupkey == playerA.getCurrentTile()){
+      playSound('i');
+      Serial.println("Space is already occupied. Try again.");
+      setupkey = NO_KEY;
+    }
+  }
+  getMove(setupkey).setHasPlayerB(true);
+  getMove(setupkey).setIsBaseB(true);
   playerB.setName("Player B");
-  playerB.setHealth(8);
-  playerB.setHasTreasure(false);
+  playerB.setHealth(4);
+  playerB.setCurrentTile(setupkey);
   playerB.setIsSafe(true);
+  playSound('m');
+  delay(1000);
+  setupkey = NO_KEY;
+  
+  //Setup Dragon
+  setupkey = NO_KEY;
+  while (setupkey == NO_KEY) {
+    Serial.println("Waiting for Dragon...");
+    setupkey = keypad.getKey();
+    if (setupkey == playerA.getCurrentTile() || setupkey == playerB.getCurrentTile()){
+      playSound('i');
+      Serial.println("Space is already occupied. Try again.");
+      setupkey = NO_KEY;
+    }
+  }
   dragon.setName("Dragon");
   dragon.setHealth(1);
   dragon.setHasTreasure(false);
   dragon.setIsSafe(true);
-  playerA.setCurrentTile('a');
-  playerB.setCurrentTile('e');
-  dragon.setCurrentTile('p'); 
+  getMove(setupkey).setHasTreasure(true);
+  getMove(setupkey).setHasDragon(true);
+  getMove(setupkey).setIsDen(true);
+  playSound('w');
+  Serial.println("The Game Begins!");
 }
 
 void loop() {
+  char key = keypad.getKey();
+
   //Player Turn
+  setCurrentPlayer(currentPlayerId); //set current player
+  if (remainingMoves == 0) { //if remaining Moves is 0 then reset for the new player
+    remainingMoves = currentPlayer->health;//set max player moves based on health
+  }
   GameTile previousTileData;
-  GameTile currentTileData = getMove(playerA.getCurrentTile());
-    char key = keypad.getKey();
-    if (key != NO_KEY) {
-      Serial.print("Key is ");
-      Serial.println(key);
-      previousTileData = currentTileData;
-      currentTileData = getMove(key);
-      Serial.print("Current location is ");
-      Serial.print(currentTileData.name);
-      Serial.print("\n");
-      Serial.print("Previous location is ");
-      Serial.print(previousTileData.name);
-      Serial.print("\n");
-      if (moveIsValid(previousTileData, currentTileData)) {
+  GameTile currentTileData = getMove(currentPlayer->getCurrentTile()); //set player location for player
+    if (key != NO_KEY) { //check for key press
+      Serial.print("Current Player is: ");
+      Serial.println(currentPlayerId);
+      Serial.print("currentTileData is: ");
+      Serial.println(currentPlayer->currentTile);
+      Serial.print("Remaining Moves is: ");
+      Serial.println(remainingMoves-1);
+      previousTileData = currentTileData; //Track last move
+      currentTileData = getMove(key); //use key press to get current location
+      if (moveIsValid(previousTileData, currentTileData)) { //check that move is valid
         Serial.println("Legal Move");
-        playerA.setCurrentTile(currentTileData.name);
-        //Player gets Treasure
-        if(currentTileData.hasTreasure) {
+        currentPlayer->setCurrentTile(currentTileData.name); //allow move by setting the move as the player location      
+        if(currentTileData.hasTreasure) {  //If the Player lands on Treasure
           playSound('t');
-          currentTileData.setHasTreasure(false);
-          playerA.setHasTreasure(true);
-        } else {
-          playSound('m');
+          getMove(key).setHasTreasure(false); //remove treasure from space
+          Serial.print("Current tile Has Treasure is: ");
+          Serial.println(currentTileData.hasTreasure);
+          currentPlayer->setHasTreasure(true); //give the treasure to the player
+          remainingMoves = 0; //player turn ends
+        } else { //otherwise treat as a normal valid move
+          playSound('m'); 
+          remainingMoves--;
         }
         //Player Enters Safe Room
         if(currentTileData.isBaseA) { // and player is playerA
-          if(playerA.hasTreasure){playSound('v');}
+          if(currentPlayer->hasTreasure){
+            playSound('v');
+            Serial.println("You Win!");            
+          } //If player has treasure play victory sound
         }
-      } else {
-        playSound('w');
+      } else { //otherwise move is not allowed
+        playSound('w'); //play wall sound
         Serial.println("Ilegal Move");
       }
     }
-    delay(100);  
+    delay(100); //set a delay between moves to account for ghost presses
+    if (remainingMoves == 0){ //check to see if turn is over
+      playSound('n');
+      Serial.println("Next Player!");
+      if (currentPlayerId == 2) {//check if the player is dragon (3)
+        currentPlayerId = 1; //if the current player is dragon then reset to player 1 turn
+      } else { //otherwise move to next player
+        currentPlayerId++; //set next player        
+      }
+    }
 }
