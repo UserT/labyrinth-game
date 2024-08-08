@@ -566,7 +566,7 @@ void loop() {
         currentPlayer->setCurrentTile(currentTileData.name); //allow move by setting the move as the player location      
         if(currentTileData.hasTreasure) {  //If the Player lands on Treasure
           playSound('t');
-          getMove(key).setHasTreasure(false); //remove treasure from space
+          currentTileData.setHasTreasure(false); //remove treasure from space
           Serial.print("Current tile Has Treasure is: ");
           Serial.println(currentTileData.hasTreasure);
           currentPlayer->setHasTreasure(true); //give the treasure to the player
