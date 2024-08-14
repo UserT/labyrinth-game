@@ -135,53 +135,71 @@ char randomDirection (){
 }
 
 void dfs(std::vector<std::vector<GameTile>>& gameBoard, int x, int y, char prevDirection) {
+  //Basic Algo:
+  //create stack of location data
+  //set passed in element to visited
+  //put passed in element location data on stack
+  //enter the loop: while stack not empty
+  //	set current elelment to stack back location (in the vector)
+  //	if current has NOT had all directons checked
+  //		create bool keep checking is ture
+  //		enter loop: while keep checking is true and current has NOT had all directons checked
+  //			get next random direction
+  //			get next element at random direction
+  //			enter loop: If next element is valid and it has not been visited
+  //				remove walls
+  //				set next element visited to true
+  //				put push next element on stack
+  //				set keep checking to false
+  //	else pop the element off the stack
+    
+    
     //stack<std::pair<int, int>> tracking;
     //tracking.push({x,y});
     if (x >= 0 && x < 4 && y >= 0 && y < 4 && !gameBoard[x][y].getIsExplored()) {
-        gameBoard[x][y].setIsExplored(true);
+      gameBoard[x][y].setIsExplored(true);
+      // Randomly choose a direction to move next
+      char nextDirection = randomDirection();   
+      Serial.println(nextDirection);     
+      
+      // Remove the wall in the opposite direction of the previous move
+      switch (prevDirection) {
+        case 'w':
+          gameBoard[x][y].setHasWallEast(false);
+          break;
+        case 'e':
+          gameBoard[x][y].setHasWallWest(false);
+          break;
+        case 'n':
+          gameBoard[x][y].setHasWallSouth(false);
+          break;
+        case 's':
+          gameBoard[x][y].setHasWallNorth(false);
+          break;
+      }
 
-        // Randomly choose a direction to move next
-        char nextDirection = randomDirection();   
-        Serial.println(nextDirection);     
-
-        // Remove the wall in the opposite direction of the previous move
-        switch (prevDirection) {
-            case 'w':
-                gameBoard[x][y].setHasWallEast(false);
-                break;
-            case 'e':
-                gameBoard[x][y].setHasWallWest(false);
-                break;
-            case 'n':
-                gameBoard[x][y].setHasWallSouth(false);
-                break;
-            case 's':
-                gameBoard[x][y].setHasWallNorth(false);
-                break;
-        }
-
-        // Move to the next tile in the chosen direction
-        int dx, dy;
-        switch (nextDirection) {
-            case 'w':
-                dx = -1;
-                dy = 0;
-                break;
-            case 'e':
-                dx = 1;
-                dy = 0;
-                break;
-            case 'n':
-                dx = 0;
-                dy = -1;
-                break;
-            case 's':
-                dx = 0;
-                dy = 1;
-                break;
-        }
-        dfs(gameBoard, x + dx, y + dy, nextDirection);
+    // Move to the next tile in the chosen direction
+    int dx, dy;
+    switch (nextDirection) {
+        case 'w':
+            dx = -1;
+            dy = 0;
+            break;
+        case 'e':
+            dx = 1;
+            dy = 0;
+            break;
+        case 'n':
+            dx = 0;
+            dy = -1;
+            break;
+        case 's':
+            dx = 0;
+            dy = 1;
+            break;
     }
+    dfs(gameBoard, x + dx, y + dy, nextDirection);
+  }
 }
 
 void createMaze (std::vector<std::vector<GameTile>>& gameBoard) {
@@ -395,102 +413,141 @@ void playSound (char sound){
   }
 }
 
-GameTile& getMove (char move){
+GameTile* getMove (char move){
   GameTile moveTile;
   switch (move) {
       case 'a':
-      return gameBoard[0][0];
+      return &gameBoard[0][0];
       break;
       case 'b':
-      return gameBoard[0][1];
+      return &gameBoard[0][1];
       break;
       case 'c':
-      return gameBoard[0][2];
+      return &gameBoard[0][2];
       break;
       case 'd':
-      return gameBoard[0][3];
+      return &gameBoard[0][3];
       break;
       case 'e':
-      return gameBoard[1][0];
+      return &gameBoard[1][0];
       break;
       case 'f':
-      return gameBoard[1][1];
+      return &gameBoard[1][1];
       break;
       case 'g':
-      return gameBoard[1][2];
+      return &gameBoard[1][2];
       break;
       case 'h':
-      return gameBoard[1][3];
+      return &gameBoard[1][3];
       break;
       case 'i':
-      return gameBoard[2][0];
+      return &gameBoard[2][0];
       break;
       case 'j':
-      return gameBoard[2][1];
+      return &gameBoard[2][1];
       break;
       case 'k':
-      return gameBoard[2][2];
+      return &gameBoard[2][2];
       break;
       case 'l':
-      return gameBoard[2][3];
+      return &gameBoard[2][3];
       break;
       case 'm':
-      return gameBoard[3][0];
+      return &gameBoard[3][0];
       break;
       case 'n':
-      return gameBoard[3][1];
+      return &gameBoard[3][1];
       break;
       case 'o':
-      return gameBoard[3][2];
+      return &gameBoard[3][2];
       break;
       case 'p':
-      return gameBoard[3][3];
+      return &gameBoard[3][3];
       break;
     }
-    return moveTile;
+    return &moveTile;
 }
 
-bool moveIsValid (GameTile& previousTile, GameTile& currentTile){
-  Serial.print(previousTile.name);
+bool moveIsValid (GameTile* previousTile, GameTile* currentTile){
+  Serial.print(previousTile->name);
   Serial.print(" to ");
-  Serial.print(currentTile.name);
+  Serial.print(currentTile->name);
   Serial.print("\n");
   //valid space is in front
-  if (!previousTile.hasWallEast && !currentTile.hasWallWest && (currentTile.name == (previousTile.name+1))){return true;}
+  if (!previousTile->hasWallEast && !currentTile->hasWallWest && (currentTile->name == (previousTile->name+1))){return true;}
   //valid space is behind
-  else if (!previousTile.hasWallWest && !currentTile.hasWallEast && (currentTile.name == (previousTile.name-1))) {return true;}
+  else if (!previousTile->hasWallWest && !currentTile->hasWallEast && (currentTile->name == (previousTile->name-1))) {return true;}
   //valid space is above
-  else if (!previousTile.hasWallNorth && !currentTile.hasWallSouth && (currentTile.name == (previousTile.name-cols))) {return true;}
+  else if (!previousTile->hasWallNorth && !currentTile->hasWallSouth && (currentTile->name == (previousTile->name-cols))) {return true;}
   //valid space is below
-  else if (!previousTile.hasWallSouth && !currentTile.hasWallNorth && (currentTile.name == (previousTile.name+cols))) {return true;}
+  else if (!previousTile->hasWallSouth && !currentTile->hasWallNorth && (currentTile->name == (previousTile->name+cols))) {return true;}
   //space is invalid
   else {return false;} 
+}
+
+void dragonMove (char dragonLocation, char dragonDestination){
+
 }
 
 //Create Game state data
 int remainingMoves;
 int currentPlayerId = 1;
 Player *currentPlayer;
+bool dragonAwake;
+
 void setCurrentPlayer(int player){
   if (player == 1){currentPlayer = &playerA;}
   else if (player == 2){currentPlayer = &playerB;}
   else {currentPlayer = &dragon;}
 }
 
+int distanceBetween(char location1, char location2){
+  int X1, X2, Y1, Y2;
+  bool found1, found2;
+
+  for (int i = 0; i < gameBoard.size(); ++i) {
+    for (int j = 0; j < gameBoard[i].size(); ++j) {
+        if (gameBoard[i][j].name == location1) {
+          X1 = i;
+          Y1 = j;
+          found1 = true;
+        }
+        if (gameBoard[i][j].name == location2) {
+          X2 = i;
+          Y2 = j;
+          found2 = true;
+      }
+    }
+    if (found1 && found2) {break;}
+  } 
+  int dist = abs(X2 - X1) + abs(Y2 - Y1);
+      return dist;
+}
+
+//Adding audio clip playback - removed for now to focus on mvp
+//AudioGeneratorWAV         *wav = NULL;
+//AudioFileSourcePROGMEM    *file_progmem = NULL;
+//
+//void playBootSound() {
+//  file_progmem = new AudioFileSourcePROGMEM(boot_sound, sizeof(boot_sound));
+//  wav = new AudioGeneratorWAV();
+//  wav->begin(file_progmem, SpeakerPin);
+//}
+
 void setup() {
   //Initialize game
   Serial.begin(921600);
   createMaze(gameBoard);
   char setupkey = keypad.getKey();
+  //playBootSound();
 
   //Setup Player A
-  playSound('1');
   while (setupkey == NO_KEY) {
     Serial.println("Waiting for Player 1...");       
     setupkey = keypad.getKey();
   }
-  getMove(setupkey).setHasPlayerA(true);
-  getMove(setupkey).setIsBaseA(true);
+  getMove(setupkey)->setHasPlayerA(true);
+  getMove(setupkey)->setIsBaseA(true);
   playerA.setName("Player A");
   playerA.setHealth(4);
   playerA.setIsSafe(true);
@@ -510,8 +567,8 @@ void setup() {
       setupkey = NO_KEY;
     }
   }
-  getMove(setupkey).setHasPlayerB(true);
-  getMove(setupkey).setIsBaseB(true);
+  getMove(setupkey)->setHasPlayerB(true);
+  getMove(setupkey)->setIsBaseB(true);
   playerB.setName("Player B");
   playerB.setHealth(4);
   playerB.setCurrentTile(setupkey);
@@ -520,38 +577,81 @@ void setup() {
   delay(1000);
   setupkey = NO_KEY;
   
-  //Setup Dragon
-  setupkey = NO_KEY;
-  while (setupkey == NO_KEY) {
-    Serial.println("Waiting for Dragon...");
-    setupkey = keypad.getKey();
-    if (setupkey == playerA.getCurrentTile() || setupkey == playerB.getCurrentTile()){
-      playSound('i');
-      Serial.println("Space is already occupied. Try again.");
-      setupkey = NO_KEY;
-    }
+  //Manual Setup Dragon
+  //setupkey = NO_KEY;
+  //while (setupkey == NO_KEY) {
+  //  Serial.println("Waiting for Dragon...");
+  //  setupkey = keypad.getKey();
+  //  if (setupkey == playerA.getCurrentTile() || setupkey == playerB.getCurrentTile()){
+  //    playSound('i');
+  //    Serial.println("Space is already occupied. Try again.");
+  //    setupkey = NO_KEY;
+  //  }
+  //}
+  //Set den location
+  char randomTile = ESP8266TrueRandom.random(15);
+  if ((distanceBetween(randomTile, playerA.currentTile) > 3) && (distanceBetween(randomTile, playerB.currentTile) > 3)){
+    getMove(randomTile)->setHasTreasure(true);
+    getMove(randomTile)->setHasDragon(true);
+    getMove(randomTile)->setIsDen(true);
   }
   dragon.setName("Dragon");
   dragon.setHealth(1);
   dragon.setHasTreasure(false);
   dragon.setIsSafe(true);
-  getMove(setupkey).setHasTreasure(true);
-  getMove(setupkey).setHasDragon(true);
-  getMove(setupkey).setIsDen(true);
+  
+  dragonAwake = false;
   playSound('w');
   Serial.println("The Game Begins!");
 }
 
 void loop() {
-  char key = keypad.getKey();
 
-  //Player Turn
+  //Turn Setup
+  char key = keypad.getKey();
   setCurrentPlayer(currentPlayerId); //set current player
   if (remainingMoves == 0) { //if remaining Moves is 0 then reset for the new player
     remainingMoves = currentPlayer->health;//set max player moves based on health
   }
-  GameTile previousTileData;
-  GameTile currentTileData = getMove(currentPlayer->getCurrentTile()); //set player location for player
+  GameTile *previousTileData;
+  GameTile *currentTileData = getMove(currentPlayer->getCurrentTile()); //set player location for player
+  
+  //Game Turn
+  if (currentPlayer->name == "Dragon" && dragonAwake) {  //Dragon Turn
+    //First find the closest player
+    int distanceBetweenPlayerA = distanceBetween(dragon.currentTile, playerA.currentTile);
+    int distanceBetweenPlayerB = distanceBetween(dragon.currentTile, playerB.currentTile);
+    Player *closestPlayer;
+    if (distanceBetweenPlayerA < distanceBetweenPlayerB){
+      closestPlayer = &playerA;
+    } else if (distanceBetweenPlayerA > distanceBetweenPlayerB) {
+      closestPlayer = &playerB;
+    } else { 
+      if (ESP8266TrueRandom.random() % 2 == 1 ){
+        closestPlayer = &playerA;
+      } else {closestPlayer = &playerB;}
+    }
+  // Prioritize Dragons moves
+  if (playerA.getIsSafe() && playerB.getIsSafe()) { // No valid targets
+    //return to Den
+  }else if (playerA.getHasTreasure() && !playerA.getIsSafe()){ //Does player A have the treasure?
+    //Advance on player A
+  } else if (playerB.getHasTreasure() && !playerB.getIsSafe()){ //Does Player B have the treasure?
+    //Advance on player B
+  } else if (!closestPlayer->getIsSafe()) {//Is closest player a valid target?
+    //Advance on closest player
+  } else { 
+    if (closestPlayer->name == "playerA") {
+      // Go after player A
+    } else {
+      //Go after player B
+    }
+  }
+  // else {}
+  //Dragon move towards player 1
+  //Dragon move towards player 2
+  //Dragon move towards den
+  } else {    //Player Turn
     if (key != NO_KEY) { //check for key press
       Serial.print("Current Player is: ");
       Serial.println(currentPlayerId);
@@ -563,12 +663,12 @@ void loop() {
       currentTileData = getMove(key); //use key press to get current location
       if (moveIsValid(previousTileData, currentTileData)) { //check that move is valid
         Serial.println("Legal Move");
-        currentPlayer->setCurrentTile(currentTileData.name); //allow move by setting the move as the player location      
-        if(currentTileData.hasTreasure) {  //If the Player lands on Treasure
+        currentPlayer->setCurrentTile(currentTileData->name); //allow move by setting the move as the player location      
+        if(currentTileData->hasTreasure) {  //If the Player lands on Treasure
           playSound('t');
-          currentTileData.setHasTreasure(false); //remove treasure from space
+          currentTileData->setHasTreasure(false); //remove treasure from space
           Serial.print("Current tile Has Treasure is: ");
-          Serial.println(currentTileData.hasTreasure);
+          Serial.println(currentTileData->hasTreasure);
           currentPlayer->setHasTreasure(true); //give the treasure to the player
           remainingMoves = 0; //player turn ends
         } else { //otherwise treat as a normal valid move
@@ -576,25 +676,34 @@ void loop() {
           remainingMoves--;
         }
         //Player Enters Safe Room
-        if(currentTileData.isBaseA) { // and player is playerA
+        if(currentTileData->isBaseA) { // and player is playerA
           if(currentPlayer->hasTreasure){
             playSound('v');
-            Serial.println("You Win!");            
+            Serial.println("You Win!");
           } //If player has treasure play victory sound
         }
       } else { //otherwise move is not allowed
         playSound('w'); //play wall sound
+        remainingMoves = 0; //player turn ends
         Serial.println("Ilegal Move");
       }
     }
-    delay(100); //set a delay between moves to account for ghost presses
-    if (remainingMoves == 0){ //check to see if turn is over
-      playSound('n');
-      Serial.println("Next Player!");
-      if (currentPlayerId == 2) {//check if the player is dragon (3)
-        currentPlayerId = 1; //if the current player is dragon then reset to player 1 turn
-      } else { //otherwise move to next player
-        currentPlayerId++; //set next player        
-      }
+
+  }
+  //Turn End
+  delay(100); //set a delay between moves to account for ghost presses
+  //check on dragon
+  if (distanceBetween(currentPlayer->currentTile, dragon.getCurrentTile()) <= 3 && currentPlayer->name != "Dragon" && !dragonAwake) {
+    dragonAwake = true;
+    playSound('d');
+  }
+  if (remainingMoves == 0){ //check to see if turn is over
+    playSound('n');
+    Serial.println("Next Player!");
+    if (currentPlayerId == 3) {//check if the player is dragon (3)
+      currentPlayerId = 1; //if the current player is dragon then reset to player 1 turn
+    } else { //otherwise move to next player
+      currentPlayerId++; //set next player        
     }
+  }
 }
