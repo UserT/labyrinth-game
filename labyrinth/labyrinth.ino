@@ -575,27 +575,27 @@ bool moveIsValid(GameTile* previousTile, GameTile* currentTile) {
   Serial.print(" to ");
   Serial.print(currentTile->name);
   Serial.print("\n");
-  //valid space is in front
-  if (!previousTile->hasWallEast && !currentTile->hasWallWest && (currentTile->name == (previousTile->name + 1))) { return true; }
-  //valid space is behind
-  else if (!previousTile->hasWallWest && !currentTile->hasWallEast && (currentTile->name == (previousTile->name - 1))) {
-    return true;
-  }
-  //valid space is above
-  else if (!previousTile->hasWallNorth && !currentTile->hasWallSouth && (currentTile->name == (previousTile->name - cols))) { return true; }
-  //valid space is below
-  else if (!previousTile->hasWallSouth && !currentTile->hasWallNorth && (currentTile->name == (previousTile->name + cols))) {
-    return true;
-  }
-  //space is invalid
-  else { return false; }
+
+  if (moveIsPossible(currentTile->name, previousTile->name)) {
+    if (!previousTile->hasWallEast && !currentTile->hasWallWest) { return true; }  //valid space is in front
+    else if (!previousTile->hasWallWest && !currentTile->hasWallEast) {
+      return true;
+    }                                                                                     //valid space is behind
+    else if (!previousTile->hasWallNorth && !currentTile->hasWallSouth) { return true; }  //valid space is above
+    else if (!previousTile->hasWallSouth && !currentTile->hasWallNorth) {
+      return true;
+    }                       //valid space is below
+    else { return false; }  //space is invalid
+  } else {
+    return false;
+  }  //space is invalid
 }
 
-bool moveIsPossible (GameTile* previousTile, GameTile* currentTile) {
-  if ((currentTile->name == (previousTile->name + 1)) || (currentTile->name == (previousTile->name - 1)) || (currentTile->name == (previousTile->name - cols)) || (currentTile->name == (previousTile->name + cols)) ) { 
-    return true; 
+bool moveIsPossible(char previousTileName, char currentTileName) {
+  if ((currentTileName == (previousTileName + 1)) || (currentTileName == (previousTileName - 1)) || (currentTileName == (previousTileName - cols)) || (currentTileName == (previousTileName + cols))) {
+    return true;
   } else {
-    return false; 
+    return false;
   }
 }
 
@@ -786,50 +786,54 @@ void loop() {
       Serial.println(currentPlayer->currentTile);
       Serial.print("Remaining Moves is: ");
       Serial.println(remainingMoves - 1);
-      previousTileData = currentTileData;                    //Track last move
-      currentTileData = getMove(key);                        //use key press to get current location
-      if (moveIsValid(previousTileData, currentTileData)) {  //check that move is valid
-        Serial.println("Legal Move");
-        currentPlayer->setCurrentTile(currentTileData->name);  //allow move by setting the move as the player location
-        if (currentTileData->hasTreasure) {                    //If the Player lands on Treasure
-          playSound('t');
-          currentTileData->setHasTreasure(false);  //remove treasure from space
-          Serial.print("Current tile Has Treasure is: ");
-          Serial.println(currentTileData->hasTreasure);
-          currentPlayer->setHasTreasure(true);  //give the treasure to the player
-          remainingMoves = 0;                   //player turn ends
-        } else {                                //otherwise treat as a normal valid move
-          playSound('m');
-          remainingMoves--;
+      previousTileData = currentTileData;                                   //Track last move
+      currentTileData = getMove(key);                                       //use key press to get current location
+      if (moveIsPossible(previousTileData->name, currentTileData->name)) {  //was the wrong player moving or did someone bump a button?
+        if (moveIsValid(previousTileData, currentTileData)) {               //check that move is valid
+          Serial.println("Legal Move");
+          currentPlayer->setCurrentTile(currentTileData->name);  //allow move by setting the move as the player location
+          if (currentTileData->hasTreasure) {                    //If the Player lands on Treasure
+            playSound('t');
+            currentTileData->setHasTreasure(false);  //remove treasure from space
+            Serial.print("Current tile Has Treasure is: ");
+            Serial.println(currentTileData->hasTreasure);
+            currentPlayer->setHasTreasure(true);  //give the treasure to the player
+            remainingMoves = 0;                   //player turn ends
+          } else {                                //otherwise treat as a normal valid move
+            playSound('m');
+            remainingMoves--;
+          }
+          //Player Enters Safe Room
+          if (currentTileData->isBaseA) {  // and player is playerA
+            if (currentPlayer->hasTreasure) {
+              playSound('v');
+              Serial.println("You Win!");
+            }  //If player has treasure play victory sound
+          }
+        } else {               //otherwise player hit a wall and turn ends
+          playSound('w');      //play wall sound
+          remainingMoves = 0;  //player turn ends
+          Serial.println("Hit a Wall");
         }
-        //Player Enters Safe Room
-        if (currentTileData->isBaseA) {  // and player is playerA
-          if (currentPlayer->hasTreasure) {
-            playSound('v');
-            Serial.println("You Win!");
-          }  //If player has treasure play victory sound
-        }
-      } else {               //otherwise move is not allowed
-        playSound('w');      //play wall sound
-        remainingMoves = 0;  //player turn ends
+      } else {           //accidental button press likely
+        playSound('w');  //play wall sound
         Serial.println("Ilegal Move");
       }
     }
-  }
-  //Turn End
-  //check on dragon
-  if (distanceBetween(currentPlayer->currentTile, dragon.getCurrentTile()) <= 3 && currentPlayer->name != "Dragon" && !dragonAwake) {
-    dragonAwake = true;
-    playSound('d');
-  }
-  if (remainingMoves == 0) {  //check to see if turn is over
-    playSound('n');
-    Serial.println("Next Player!");
-    if (currentPlayerId == 3) {  //check if the player is dragon (3)
-      currentPlayerId = 1;       //if the current player is dragon then reset to player 1 turn
-    } else {                     //otherwise move to next player
-      currentPlayerId++;         //set next player
+    //Turn End
+    //check on dragon
+    if (distanceBetween(currentPlayer->currentTile, dragon.getCurrentTile()) <= 3 && currentPlayer->name != "Dragon" && !dragonAwake) {
+      dragonAwake = true;
+      playSound('d');
     }
+    if (remainingMoves == 0) {  //check to see if turn is over
+      playSound('n');
+      Serial.println("Next Player!");
+      if (currentPlayerId == 3) {  //check if the player is dragon (3)
+        currentPlayerId = 1;       //if the current player is dragon then reset to player 1 turn
+      } else {                     //otherwise move to next player
+        currentPlayerId++;         //set next player
+      }
+    }
+    delay(500);  //set a delay between moves to account for ghost presses
   }
-  delay(500);  //set a delay between moves to account for ghost presses
-}
