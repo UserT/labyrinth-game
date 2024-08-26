@@ -4,11 +4,8 @@ Hopefully code that will run on an arduino to play this cool little pvp/pve dung
 TODO:
 
 Code:
-tile name generation,
 random maze generation,
-implement sounds,
 implement light routines,
-implement matrix button functionality
 
 HW:
 find sutable microcontroller (using wemos d1 mini for now),
