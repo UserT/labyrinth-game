@@ -765,11 +765,11 @@ void loop() {
       dragonMove(dragon.currentTile, closestPlayer->currentTile);   //Advance on closest player
       remainingMoves--;
     } else {
-      if (closestPlayer->name == "playerA") {
-        dragonMove(dragon.currentTile, playerA.currentTile);  // Go after player A
+      if (closestPlayer->name == "playerA") {                       //Go after the other player
+        dragonMove(dragon.currentTile, playerB.currentTile);        // Go after player B
         remainingMoves--;
       } else {
-        dragonMove(dragon.currentTile, playerB.currentTile);  //Go after player B
+        dragonMove(dragon.currentTile, playerA.currentTile);        //Go after player A
         remainingMoves--;
       }
     }
@@ -800,11 +800,20 @@ void loop() {
             remainingMoves--;
           }
           //Player Enters Safe Room
-          if (currentTileData->isBaseA) {  // and player is playerA
+          if ((currentTileData->isBaseA) && (currentPlayer->getName() == "Player A")) { // and player is playerA
+            currentPlayer->setIsSafe(true);  
             if (currentPlayer->hasTreasure) {
-              playSound('v');
+              playSound('v');  //If player has treasure play victory sound
               Serial.println("You Win!");
-            }  //If player has treasure play victory sound
+            } 
+          } else if ((currentTileData->isBaseB) && (currentPlayer->getName() == "Player B")) {  // and player is playerA
+            currentPlayer->setIsSafe(true);
+            if (currentPlayer->hasTreasure) {
+              playSound('v'); //If player has treasure play victory sound
+              Serial.println("You Win!");
+            }
+          } else { //Player is NOT safe
+            currentPlayer->setIsSafe(false);
           }
         } else {               //otherwise player hit a wall and turn ends
           playSound('w');      //play wall sound
