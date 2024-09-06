@@ -27,8 +27,8 @@ char keys[ROWS][COLS] = {
 //  { 'Y', 'Z', '[', '\', ']', '^', '_', '`' }
 //};
 
-byte rowPins[ROWS] = { 14, 12, 13, 5 };  //, 12, 13, 15}; // row pinouts of the keypad R1 = D8, R2 = D7, R3 = D6, R4 = D5
-byte colPins[COLS] = { 4, 0, 2, 16 };    //, 0, 2, 16};    // column pinouts of the keypad C1 = D4, C2 = D3, C3 = D2
+byte rowPins[ROWS] = { 14, 12, 13, 5 };  // row pinouts of the keypad R1 = D8, R2 = D7, R3 = D6, R4 = D5
+byte colPins[COLS] = { 4, 0, 2, 16 };    // column pinouts of the keypad C1 = D4, C2 = D3, C3 = D2
 Keypad keypad = Keypad(makeKeymap(keys), rowPins, colPins, ROWS, COLS);
 
 // Setup speaker
@@ -144,10 +144,11 @@ public:
   char currentTile;
   bool hasTreasure;
   bool isSafe;
+  int strength;
 
   // Constructors
   Player()
-    : name(""), health(0), currentTile(' '), hasTreasure(false), isSafe(true) {}
+    : name(""), health(0), currentTile(' '), hasTreasure(false), isSafe(true), strength(0) {}
 
   // Getters and Setters
   std::string getName() {
@@ -184,11 +185,21 @@ public:
   void setIsSafe(bool value) {
     isSafe = value;
   }
+
+  int getStrength(){
+    return strength;
+  }
+  void setStrength(int value){
+    strength = value;
+  }
 };
 
 // Define the dimensions of the game board
 const int rows = 4;
 const int cols = 4;
+//const int rows = 8;
+//const int cols = 8;
+
 // Create Gameboard of GameTiles
 std::vector<std::vector<GameTile>> gameBoard(rows, std::vector<GameTile>(cols));
 // Create Game Entities
@@ -735,7 +746,7 @@ void loop() {
   GameTile* previousTileData;
   GameTile* currentTileData = getMove(currentPlayer->getCurrentTile());  //set player location for player
 ///////////////////////Turn///////////////////////
-  if (currentPlayer->name == "Dragon" && dragonAwake) {  //Dragon Turn
+  if (currentPlayer->name == "Dragon" && dragonAwake) {  //Dragon Turn//////////////////////////////
     //Find the closest player
     int distanceBetweenPlayerA = distanceBetween(dragon.currentTile, playerA.currentTile);
     int distanceBetweenPlayerB = distanceBetween(dragon.currentTile, playerB.currentTile);
@@ -773,7 +784,7 @@ void loop() {
         remainingMoves--;
       }
     }
-  } else {                //Player Turn
+  } else {                //Player Turn//////////////////////////////
     if (key != NO_KEY) {  //check for key press
       Serial.print("Current Player is: ");
       Serial.println(currentPlayerId);
@@ -788,7 +799,13 @@ void loop() {
         if (moveIsValid(previousTileData, currentTileData)) {               //check that move is valid
           Serial.println("Legal Move");
           currentPlayer->setCurrentTile(currentTileData->name);  //allow move by setting the move as the player location
-          if (currentTileData->hasTreasure) {                    //If the Player lands on Treasure
+          if(currentPlayer->strength == 1) {                      //Manage player strength
+            currentPlayer->setStrength(8);
+          } else {
+            currentPlayer->strength--;
+          }
+          //If the Player lands on Treasure//////////////////////////////
+          if (currentTileData->hasTreasure) {
             playSound('t');
             currentTileData->setHasTreasure(false);  //remove treasure from space
             Serial.print("Current tile Has Treasure is: ");
@@ -799,7 +816,8 @@ void loop() {
             playSound('m');
             remainingMoves--;
           }
-          //Player Enters Safe Room
+
+          //If Player lands in Safe Room//////////////////////////////
           if ((currentTileData->isBaseA) && (currentPlayer->getName() == "Player A")) { // and player is playerA
             currentPlayer->setIsSafe(true);  
             if (currentPlayer->hasTreasure) {
@@ -815,9 +833,19 @@ void loop() {
           } else { //Player is NOT safe
             currentPlayer->setIsSafe(false);
           }
+
+          //If the Player lands on other player//////////////////////////////
+          //If the Player lands on dragon//////////////////////////////
+
+
         } else {               //otherwise player hit a wall and turn ends
           playSound('w');      //play wall sound
           remainingMoves = 0;  //player turn ends
+          if(currentPlayer->strength == 1) {  //Manage player strength
+            currentPlayer->setStrength(8);
+          } else {
+            currentPlayer->strength--;
+          }
           Serial.println("Hit a Wall");
         }
       } else {           //accidental button press likely
